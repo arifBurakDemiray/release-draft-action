@@ -1,0 +1,67 @@
+name: Update or Create Single Release Draft
+
+on:
+  push:
+    branches:
+      - staging
+
+jobs:
+  update-release-draft:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v4
+
+    - name: Extract changelog section
+      id: extract
+      run: |
+        version=$(grep -m1 '^## ' CHANGELOG.md | sed 's/^## //')
+        echo "version=$version" >> $GITHUB_OUTPUT
+
+        awk '
+          /^## / {
+            if (seen++) exit;
+            next;
+          }
+          seen == 1 { print }
+        ' CHANGELOG.md > latest_changelog.txt
+
+        changelog=$(cat latest_changelog.txt)
+        changelog="${changelog//'%'/'%25'}"
+        changelog="${changelog//$'\n'/'%0A'}"
+        changelog="${changelog//$'\r'/'%0D'}"
+        echo "changelog=$changelog" >> $GITHUB_OUTPUT
+
+    - name: Get existing draft release (if any)
+      id: get_release
+      run: |
+        response=$(gh release list --limit 100 --json name,tagName,isDraft | jq -r '.[] | select(.isDraft) | @base64')
+        if [ -n "$response" ]; then
+          decoded=$(echo "$response" | base64 --decode)
+          tag_name=$(echo "$decoded" | jq -r '.tagName')
+          echo "found_release=true" >> $GITHUB_OUTPUT
+          echo "existing_tag=$tag_name" >> $GITHUB_OUTPUT
+        else
+          echo "found_release=false" >> $GITHUB_OUTPUT
+        fi
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Delete existing draft release (if any)
+      if: steps.get_release.outputs.found_release == 'true'
+      run: |
+        gh release delete ${{ steps.get_release.outputs.existing_tag }} --yes
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Create new draft release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: ${{ steps.extract.outputs.version }}
+        name: Release ${{ steps.extract.outputs.version }}
+        body: |
+          ${{ steps.extract.outputs.changelog }}
+        draft: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
