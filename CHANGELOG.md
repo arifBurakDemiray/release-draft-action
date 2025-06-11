@@ -1,6 +1,7 @@
-## XX.XX.XX
+## NEW_VERSION_4
 * Some change
 * Some other change
+* New content
 
 * Some fix
 
@@ -17,3 +18,6 @@
 * Some very old other change
 
 * Some very old deprecation
+
+## VERY_VERY_OLD_VERSION
+* Some very old change
