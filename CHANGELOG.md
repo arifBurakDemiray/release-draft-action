@@ -1,4 +1,4 @@
-## NEW_VERSION_5
+## NEW_VERSION_6
 * Some change
 * Some other change
 * New content
