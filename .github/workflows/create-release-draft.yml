@@ -44,7 +44,7 @@ jobs:
         run: |
           version=${{ steps.changelog.outputs.version }}
 
-          release_id=$(gh release list --limit 1 --json id,draft | jq -r '.[] | select(.draft) | .id' | head -n1)
+          release_id=$(gh release list --limit 100 --json id,draft | jq -r '.[] | select(.draft) | .id' | head -n1)
 
           if [ -z "$release_id" ]; then
             echo "No draft release found, creating new one..."
