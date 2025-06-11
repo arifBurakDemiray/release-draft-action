@@ -1,6 +1,7 @@
 ## NEW_VERSION_3
 * Some change
 * Some other change
+* New content
 
 * Some fix
 
