@@ -1,4 +1,7 @@
-name: Create Draft Release on Staging Merge
+name: Form a Draft Release on Staging Merge
+
+permissions:
+  contents: write
 
 on:
   push:
@@ -37,11 +40,18 @@ jobs:
           cat body.txt
 
       - name: Create draft release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ steps.changelog.outputs.version }}
-          name: ${{ steps.changelog.outputs.version }}
-          body_path: body.txt
-          draft: true
+        id: draft_release
+        run: |
+          version=${{ steps.changelog.outputs.version }}
+
+          release_id=$(gh release list --limit 1 --json id,draft | jq -r '.[] | select(.draft) | .id' | head -n1)
+
+          if [ -z "$release_id" ]; then
+            echo "No draft release found, creating new one..."
+            gh release create "${version}" --target staging --draft --title "$version" --notes-file body.txt
+          else
+            echo "Updating existing draft release $release_id..."
+            gh release edit "$release_id" --target staging --title "$version" --notes-file body.txt
+          fi
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
