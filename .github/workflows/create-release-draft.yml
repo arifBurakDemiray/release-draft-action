@@ -62,7 +62,7 @@ jobs:
             gh release create "${version}" --target staging --draft --title "$version" --notes-file body.txt
           else
             echo "Updating existing draft release $release_tag..."
-            gh release edit "$release_tag" --target staging --title "$version" --notes-file body.txt
+            gh release edit "${version}" --target staging --title "$version" --notes-file body.txt
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
