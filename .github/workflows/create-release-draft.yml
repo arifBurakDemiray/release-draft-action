@@ -45,8 +45,8 @@ jobs:
           version=${{ steps.changelog.outputs.version }}
 
           # Find all draft releases except the current version's draft
-          old_drafts=$(gh release list --limit 100 --json tagName,draft | \
-            jq -r --arg version "$version" '.[] | select(.draft and (.tagName != $version)) | .tagName')
+          old_drafts=$(gh release list --limit 100 --json tagName,isDraft | \
+            jq -r --arg version "$version" '.[] | select(.isDraft and (.tagName != $version)) | .tagName')
 
           # Delete old draft releases (ignore errors if none)
           for tag in $old_drafts; do
@@ -54,15 +54,15 @@ jobs:
             gh release delete "$tag" --yes || true
           done
 
-          release_id=$(gh release list --limit 100 --json id,draft,tagName | \
-            jq -r --arg version "$version" '.[] | select(.draft and (.tagName == $version)) | .id' | head -n1)
+          release_tag=$(gh release list --limit 100 --json isDraft,tagName | \
+            jq -r --arg version "$version" '.[] | select(.isDraft and (.tagName == $version)) | .tagName' | head -n1)
 
-          if [ -z "$release_id" ]; then
+          if [ -z "$release_tag" ]; then
             echo "No draft release found, creating new one..."
             gh release create "${version}" --target staging --draft --title "$version" --notes-file body.txt
           else
-            echo "Updating existing draft release $release_id..."
-            gh release edit "$release_id" --target staging --title "$version" --notes-file body.txt
+            echo "Updating existing draft release $release_tag..."
+            gh release edit "$release_tag" --target staging --title "$version" --notes-file body.txt
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
