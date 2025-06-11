@@ -17,3 +17,6 @@
 * Some very old other change
 
 * Some very old deprecation
+
+## VERY_VERY_OLD_VERSION
+* Some very old change
