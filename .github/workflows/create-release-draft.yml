@@ -44,7 +44,18 @@ jobs:
         run: |
           version=${{ steps.changelog.outputs.version }}
 
-          release_id=$(gh release list --limit 100 --json id,draft | jq -r '.[] | select(.draft) | .id' | head -n1)
+          # Find all draft releases except the current version's draft
+          old_drafts=$(gh release list --limit 100 --json tagName,draft | \
+            jq -r --arg version "$version" '.[] | select(.draft and (.tagName != $version)) | .tagName')
+
+          # Delete old draft releases (ignore errors if none)
+          for tag in $old_drafts; do
+            echo "Deleting old draft release with tag: $tag"
+            gh release delete "$tag" --yes || true
+          done
+
+          release_id=$(gh release list --limit 100 --json id,draft,tagName | \
+            jq -r --arg version "$version" '.[] | select(.draft and (.tagName == $version)) | .id' | head -n1)
 
           if [ -z "$release_id" ]; then
             echo "No draft release found, creating new one..."
