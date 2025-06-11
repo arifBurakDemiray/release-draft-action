@@ -31,7 +31,7 @@ jobs:
           ' CHANGELOG.md > body.txt
 
           # Remove trailing empty lines from the end of the file
-          sed -i ':a;{/^$/d;N;ba}' body.txt
+          perl -0777 -pe 's/\n+\z//' body.txt > trimmed.txt && mv trimmed.txt body.txt
 
           echo "Extracted changelog body:"
           cat body.txt
