@@ -70,3 +70,10 @@ jobs:
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publish release
+        run: |
+          version=${{ steps.changelog.outputs.version }}
+          echo "Publishing release: $version"
+          gh release edit "$version" --draft=false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
