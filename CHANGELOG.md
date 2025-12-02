@@ -1,3 +1,12 @@
+## XX.XX.XX
+* Some change
+* Some other change
+* New content
+
+* Some fix
+
+* Some deprecation
+
 ## 25.4.5
 * Added a new config flag `setUseSerialExecutor(boolean useSerial)` for selecting immediate request executor type.
 * Added a new config option `setWebviewDisplayOption(WebViewDisplayOption)` to control how Content and Feedback Widgets are displayed. 
