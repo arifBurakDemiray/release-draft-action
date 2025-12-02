@@ -1,3 +1,12 @@
+## 25.4.2
+* Some change
+* Some other change
+* New content
+
+* Some fix
+
+* Some deprecation
+
 ## NEW_VERSION_5
 * Some change
 * Some other change
